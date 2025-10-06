@@ -21,8 +21,13 @@ type Forecast struct {
 }
 
 type Area struct {
-	AAC      string         `xml:"aac,attr"`
-	Elements []ForecastText `xml:"forecast-period>text"`
+	AAC             string              `xml:"aac,attr"`
+	ForecastPeriods []ForecastPeriod    `xml:"forecast-period"`
+}
+
+type ForecastPeriod struct {
+	Texts    []ForecastText    `xml:"text"`
+	Elements []ForecastElement `xml:"element"`
 }
 
 type ForecastText struct {
@@ -30,12 +35,18 @@ type ForecastText struct {
 	Value string `xml:",chardata"`
 }
 
+type ForecastElement struct {
+	Type  string `xml:"type,attr"`
+	Value string `xml:",chardata"`
+}
+
 // UmbrellaResponse is the JSON response structure
 type UmbrellaResponse struct {
-	NeedUmbrella         bool   `json:"need_umbrella"`
-	PrecipitationChance  int    `json:"precipitation_chance_percent"`
-	Location             string `json:"location"`
-	Timestamp            string `json:"timestamp"`
+	NeedUmbrella           bool    `json:"need_umbrella"`
+	PrecipitationChance    int     `json:"precipitation_chance_percent"`
+	PrecipitationVolumeMax float64 `json:"precipitation_volume_mm"`
+	Location               string  `json:"location"`
+	Timestamp              string  `json:"timestamp"`
 }
 
 func main() {
@@ -100,21 +111,22 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
             color: #333;
             font-size: 2rem;
         }
-        .chance {
-            font-size: 3rem;
+        .stats {
+            font-size: 1.5rem;
             font-weight: bold;
             color: %s;
             margin: 1rem 0;
         }
         .info {
             color: #666;
-            font-size: 0.9rem;
+            font-size: 1rem;
             margin-top: 1rem;
+            line-height: 1.5;
         }
         .location {
             color: #888;
             font-size: 0.85rem;
-            margin-top: 0.5rem;
+            margin-top: 1rem;
         }
     </style>
 </head>
@@ -122,8 +134,8 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
     <div class="card">
         <div class="icon">%s</div>
         <h1>%s</h1>
-        <div class="chance">%d%%</div>
-        <div class="info">chance of rain</div>
+        <div class="stats">%d%% chance · %.1fmm</div>
+        <div class="info">%s</div>
         <div class="location">%s</div>
     </div>
 </body>
@@ -132,6 +144,8 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 		map[bool]string{true: "☔", false: "☀️"}[result.NeedUmbrella],
 		map[bool]string{true: "Take an umbrella!", false: "No umbrella needed"}[result.NeedUmbrella],
 		result.PrecipitationChance,
+		result.PrecipitationVolumeMax,
+		map[bool]string{true: "High likelihood and volume of rain", false: "Low likelihood or volume of rain"}[result.NeedUmbrella],
 		result.Location,
 	)
 
@@ -151,9 +165,10 @@ func handleAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, `{"need_umbrella": %t, "precipitation_chance_percent": %d, "location": "%s", "timestamp": "%s"}`,
+	fmt.Fprintf(w, `{"need_umbrella": %t, "precipitation_chance_percent": %d, "precipitation_volume_mm": %.1f, "location": "%s", "timestamp": "%s"}`,
 		result.NeedUmbrella,
 		result.PrecipitationChance,
+		result.PrecipitationVolumeMax,
 		result.Location,
 		result.Timestamp,
 	)
@@ -178,37 +193,71 @@ func checkUmbrella() (*UmbrellaResponse, error) {
 
 	// Find NSW_PT131 area
 	var precipChance int
-	found := false
+	var precipVolumeMax float64
+	foundChance := false
+	foundVolume := false
+
 	for _, area := range forecast.Areas {
 		if area.AAC == "NSW_PT131" {
-			for _, element := range area.Elements {
-				if element.Type == "probability_of_precipitation" {
-					// Parse percentage value (e.g., "15%")
-					valueStr := strings.TrimSpace(element.Value)
-					valueStr = strings.TrimSuffix(valueStr, "%")
-					precipChance, err = strconv.Atoi(valueStr)
-					if err != nil {
-						return nil, fmt.Errorf("failed to parse precipitation value: %w", err)
+			// Get data from first forecast period
+			if len(area.ForecastPeriods) > 0 {
+				period := area.ForecastPeriods[0]
+
+				// Extract precipitation chance
+				for _, text := range period.Texts {
+					if text.Type == "probability_of_precipitation" {
+						valueStr := strings.TrimSpace(text.Value)
+						valueStr = strings.TrimSuffix(valueStr, "%")
+						precipChance, err = strconv.Atoi(valueStr)
+						if err != nil {
+							return nil, fmt.Errorf("failed to parse precipitation value: %w", err)
+						}
+						foundChance = true
+						break
 					}
-					found = true
-					break
+				}
+
+				// Extract precipitation volume (parse "X to Y mm" format)
+				for _, element := range period.Elements {
+					if element.Type == "precipitation_range" {
+						// Parse "0 to 4 mm" format - take the maximum value
+						valueStr := strings.TrimSpace(element.Value)
+						valueStr = strings.TrimSuffix(valueStr, " mm")
+						parts := strings.Split(valueStr, " to ")
+						if len(parts) == 2 {
+							precipVolumeMax, err = strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
+							if err != nil {
+								return nil, fmt.Errorf("failed to parse precipitation volume: %w", err)
+							}
+							foundVolume = true
+						}
+						break
+					}
 				}
 			}
 			break
 		}
 	}
 
-	if !found {
+	if !foundChance || !foundVolume {
 		return nil, fmt.Errorf("NSW_PT131 area or precipitation data not found")
 	}
 
-	log.Info().Int("precipitation_chance", precipChance).Bool("need_umbrella", precipChance > 5).Msg("Weather check complete")
+	// Umbrella needed if likelihood > 10% AND volume > 5mm
+	needUmbrella := precipChance > 10 && precipVolumeMax > 5.0
+
+	log.Info().
+		Int("precipitation_chance", precipChance).
+		Float64("precipitation_volume_mm", precipVolumeMax).
+		Bool("need_umbrella", needUmbrella).
+		Msg("Weather check complete")
 
 	return &UmbrellaResponse{
-		NeedUmbrella:        precipChance > 5,
-		PrecipitationChance: precipChance,
-		Location:            "NSW_PT131",
-		Timestamp:           time.Now().Format(time.RFC3339),
+		NeedUmbrella:           needUmbrella,
+		PrecipitationChance:    precipChance,
+		PrecipitationVolumeMax: precipVolumeMax,
+		Location:               "NSW_PT131",
+		Timestamp:              time.Now().Format(time.RFC3339),
 	}, nil
 }
 
