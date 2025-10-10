@@ -70,15 +70,21 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 			
 			// Find the forecast period for tomorrow
 			var tomorrowPeriod *ForecastPeriod
+			log.Debug().Str("tomorrow_date", tomorrowDateStr).Msg("Looking for tomorrow's forecast period")
 			for _, period := range area.ForecastPeriods {
 				// Parse the start time to check if it's tomorrow
 				startTime, err := time.Parse(time.RFC3339, period.StartTime)
 				if err != nil {
+					log.Debug().Str("start_time", period.StartTime).Err(err).Msg("Failed to parse start time")
 					continue // skip if we can't parse the time
 				}
 				
+				periodDateStr := startTime.Format("2006-01-02")
+				log.Debug().Str("period_date", periodDateStr).Str("start_time", period.StartTime).Msg("Checking period")
+				
 				// Check if this period is for tomorrow
-				if startTime.Format("2006-01-02") == tomorrowDateStr {
+				if periodDateStr == tomorrowDateStr {
+					log.Debug().Str("start_time", period.StartTime).Msg("Found tomorrow's period")
 					tomorrowPeriod = &period
 					break
 				}

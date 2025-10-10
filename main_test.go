@@ -61,10 +61,11 @@ func TestCheckUmbrella_DefaultThreshold(t *testing.T) {
 	}
 	if len(resp.Periods) != 1 {
 		t.Errorf("expected 1 period (tomorrow only), got %d", len(resp.Periods))
-	}
-	// Verify it's tomorrow's period
-	if resp.Periods[0].StartTime != "2025-10-11T00:00:00Z" {
-		t.Errorf("expected tomorrow's start time, got %s", resp.Periods[0].StartTime)
+	} else {
+		// Verify it's tomorrow's period
+		if resp.Periods[0].StartTime != "2025-10-11T00:00:00Z" {
+			t.Errorf("expected tomorrow's start time, got %s", resp.Periods[0].StartTime)
+		}
 	}
 }
 
@@ -251,9 +252,10 @@ func TestCheckUmbrella_OnlyTomorrowPeriod(t *testing.T) {
 	}
 	if len(resp.Periods) != 1 {
 		t.Errorf("expected exactly 1 period (tomorrow only), got %d", len(resp.Periods))
-	}
-	if resp.Periods[0].StartTime != "2025-10-11T00:00:00Z" {
-		t.Errorf("expected tomorrow's start time, got %s", resp.Periods[0].StartTime)
+	} else {
+		if resp.Periods[0].StartTime != "2025-10-11T00:00:00Z" {
+			t.Errorf("expected tomorrow's start time, got %s", resp.Periods[0].StartTime)
+		}
 	}
 	
 	// Sum product should be 30% * 2mm / 100 = 0.6, which is < 20.0 threshold
