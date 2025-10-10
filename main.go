@@ -56,14 +56,37 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 	var periods []RainPeriod
 	foundArea := false
 
+	// Find tomorrow's date
+	now := time.Now()
+	tomorrow := now.AddDate(0, 0, 1)
+	tomorrowDateStr := tomorrow.Format("2006-01-02")
+
 	for _, area := range forecast.Areas {
 		if area.AAC == "NSW_PT131" {
 			foundArea = true
+			
+			// Find the forecast period for tomorrow
+			var tomorrowPeriod *ForecastPeriod
 			for _, period := range area.ForecastPeriods {
+				// Parse the start time to check if it's tomorrow
+				startTime, err := time.Parse(time.RFC3339, period.StartTime)
+				if err != nil {
+					continue // skip if we can't parse the time
+				}
+				
+				// Check if this period is for tomorrow
+				if startTime.Format("2006-01-02") == tomorrowDateStr {
+					tomorrowPeriod = &period
+					break
+				}
+			}
+			
+			if tomorrowPeriod != nil {
 				var chance int
 				var volume float64
+				
 				// Extract precipitation chance
-				for _, text := range period.Texts {
+				for _, text := range tomorrowPeriod.Texts {
 					if text.Type == "probability_of_precipitation" {
 						valueStr := strings.TrimSpace(text.Value)
 						valueStr = strings.TrimSuffix(valueStr, "%")
@@ -71,14 +94,13 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 						if err != nil {
 							chance = 0 // treat as 0 if parse fails
 						}
-						if chance > precipChanceMax {
-							precipChanceMax = chance
-						}
+						precipChanceMax = chance
 						break
 					}
 				}
+				
 				// Extract precipitation volume (parse "X to Y mm" format)
-				for _, element := range period.Elements {
+				for _, element := range tomorrowPeriod.Elements {
 					if element.Type == "precipitation_range" {
 						valueStr := strings.TrimSpace(element.Value)
 						valueStr = strings.TrimSuffix(valueStr, " mm")
@@ -88,16 +110,14 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 							if err != nil {
 								volume = 0.0 // treat as 0 if parse fails
 							}
-							if volume > precipVolumeMax {
-								precipVolumeMax = volume
-							}
+							precipVolumeMax = volume
 						}
 						break
 					}
 				}
-				sumProduct += float64(chance) * volume / 100.0 // scale chance to 0-1
-				// Use period.StartTime (already UTC)
-				periods = append(periods, RainPeriod{Likelihood: chance, Volume: volume, StartTime: period.StartTime})
+				
+				sumProduct = float64(chance) * volume / 100.0 // scale chance to 0-1
+				periods = append(periods, RainPeriod{Likelihood: chance, Volume: volume, StartTime: tomorrowPeriod.StartTime})
 			}
 			break
 		}
@@ -105,6 +125,12 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 
 	if !foundArea {
 		return nil, fmt.Errorf("NSW_PT131 area not found")
+	}
+
+	// Default threshold
+	sumProductThreshold := 20.0
+	if len(threshold) > 0 {
+		sumProductThreshold = threshold[0]
 	}
 
 	needUmbrella := sumProduct > sumProductThreshold
