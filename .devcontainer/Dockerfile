@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ripgrep \
     fzf \
     exuberant-ctags \
-    procps \
+    procps
 
 RUN sed -i "s/^# \($LANG\)/\1/" /etc/locale.gen && locale-gen
 ENV LANG=$LANG

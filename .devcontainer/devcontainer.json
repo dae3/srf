@@ -1,6 +1,17 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "features": {
-    "ghcr.io/devcontainers/features/go:1": {}
-  }
+    "name": "Go Development",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    "containerUser": "vscode",
+    "remoteUser": "vscode",
+    "onCreateCommand": {
+        "homeperm": "chown vscode /home/vscode",
+    }
 }
+
+// vim: ft=jsonc
