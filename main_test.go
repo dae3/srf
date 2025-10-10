@@ -10,18 +10,18 @@ import (
 // mock XML data for BOM
 const mockBOMXML = `<?xml version="1.0" encoding="UTF-8"?>
 <product>
-  <forecast>
-    <area aac="NSW_PT131">
-      <forecast-period>
-        <text type="probability_of_precipitation">80%</text>
-        <element type="precipitation_range">2 to 8 mm</element>
-      </forecast-period>
-      <forecast-period>
-        <text type="probability_of_precipitation">40%</text>
-        <element type="precipitation_range">0 to 2 mm</element>
-      </forecast-period>
-    </area>
-  </forecast>
+	<forecast>
+		<area aac="NSW_PT131">
+			<forecast-period start-time="2025-10-10T00:00:00Z">
+				<text type="probability_of_precipitation">80%</text>
+				<element type="precipitation_range">2 to 8 mm</element>
+			</forecast-period>
+			<forecast-period start-time="2025-10-10T06:00:00Z">
+				<text type="probability_of_precipitation">40%</text>
+				<element type="precipitation_range">0 to 2 mm</element>
+			</forecast-period>
+		</area>
+	</forecast>
 </product>`
 
 // override fetchFromHTTP for tests
@@ -39,9 +39,9 @@ func TestCheckUmbrella_DefaultThreshold(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-       if resp.NeedUmbrella {
-	       t.Errorf("expected NeedUmbrella false, got true")
-       }
+	if resp.NeedUmbrella {
+		t.Errorf("expected NeedUmbrella false, got true")
+	}
 	if resp.SumProduct <= 0 {
 		t.Errorf("expected positive sum product, got %v", resp.SumProduct)
 	}
@@ -79,5 +79,15 @@ func TestAPIUmbrellaHandler(t *testing.T) {
 	}
 	if !strings.Contains(body, "sum_product") {
 		t.Errorf("response missing sum_product: %s", body)
+	}
+	if !strings.Contains(body, "periods") {
+		t.Errorf("response missing periods array: %s", body)
+	}
+	// Check for expected period values
+	if !strings.Contains(body, "\"likelihood\":80") || !strings.Contains(body, "\"volume\":8") {
+		t.Errorf("expected first period values not found: %s", body)
+	}
+	if !strings.Contains(body, "\"likelihood\":40") || !strings.Contains(body, "\"volume\":2") {
+		t.Errorf("expected second period values not found: %s", body)
 	}
 }
