@@ -33,8 +33,6 @@ func main() {
 	}
 }
 
-
-
 // checkUmbrella computes the sum-product of (rain likelihood x rain amount) across all forecast periods for NSW_PT131.
 // If the sum-product exceeds the threshold, an umbrella is needed.
 func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
@@ -135,4 +133,3 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 		Timestamp:              time.Now().Format(time.RFC3339),
 	}, nil
 }
-
