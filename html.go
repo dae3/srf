@@ -34,9 +34,6 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 `, x, chartHeight-lh, barWidth/2-2, lh)
 		svgBars += fmt.Sprintf(`<rect x="%d" y="%d" width="%d" height="%d" fill="#888" rx="4"/>
 `, x+barWidth/2+2, chartHeight-vh, barWidth/2-2, vh)
-		// Add text label for period index
-		svgBars += fmt.Sprintf(`<text x="%d" y="%d" font-size="10" text-anchor="middle" fill="#333">%d</text>
-`, x+barWidth/2, chartHeight+12, i+1)
 	}
 	svgChart := fmt.Sprintf(`<svg width="%d" height="%d" style="margin:1rem 0 0.5rem 0;">%s</svg>`, chartWidth, chartHeight+20, svgBars)
 
@@ -146,7 +143,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
                    startTimes.forEach((utc, i) => {
                        const d = new Date(utc);
                        const span = document.createElement('span');
-                       span.textContent = d.toLocaleString(undefined, { hour: '2-digit', minute: '2-digit' });
+                       span.textContent = d.toLocaleString(undefined, { hour: '2-digit' });
                        container.appendChild(span);
                    });
                }

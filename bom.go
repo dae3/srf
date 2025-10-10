@@ -22,7 +22,7 @@ type Area struct {
 
 type ForecastPeriod struct {
 	Index     int               `xml:"index,attr"`
-	StartTime string            `xml:"start-time,attr"`
+	StartTime string            `xml:"start-time-local,attr"`
 	Texts     []ForecastText    `xml:"text"`
 	Elements  []ForecastElement `xml:"element"`
 }
