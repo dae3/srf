@@ -13,6 +13,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// timeNow is a variable that can be mocked in tests
+var timeNow = time.Now
+
 // XML structures for parsing BOM data
 
 func main() {
@@ -57,7 +60,7 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 	foundArea := false
 
 	// Find tomorrow's date
-	now := time.Now()
+	now := timeNow()
 	tomorrow := now.AddDate(0, 0, 1)
 	tomorrowDateStr := tomorrow.Format("2006-01-02")
 
@@ -148,6 +151,6 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 		SumProduct:             sumProduct,
 		Periods:                periods,
 		Location:               "NSW_PT131",
-		Timestamp:              time.Now().Format(time.RFC3339),
+		Timestamp:              timeNow().Format(time.RFC3339),
 	}, nil
 }

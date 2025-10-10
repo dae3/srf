@@ -41,10 +41,10 @@ func TestCheckUmbrella_DefaultThreshold(t *testing.T) {
 	}
 	defer func() { fetchFromHTTP = oldFetch }()
 
-	// Mock time.Now() to return our fixed time
-	originalTimeNow := time.Now
-	time.Now = func() time.Time { return now }
-	defer func() { time.Now = originalTimeNow }()
+	// Mock timeNow to return our fixed time
+	originalTimeNow := timeNow
+	timeNow = func() time.Time { return now }
+	defer func() { timeNow = originalTimeNow }()
 
 	resp, err := checkUmbrella()
 	if err != nil {
@@ -90,10 +90,10 @@ func TestCheckUmbrella_CustomThreshold(t *testing.T) {
 	}
 	defer func() { fetchFromHTTP = oldFetch }()
 
-	// Mock time.Now() to return our fixed time
-	originalTimeNow := time.Now
-	time.Now = func() time.Time { return now }
-	defer func() { time.Now = originalTimeNow }()
+	// Mock timeNow to return our fixed time
+	originalTimeNow := timeNow
+	timeNow = func() time.Time { return now }
+	defer func() { timeNow = originalTimeNow }()
 
 	resp, err := checkUmbrella(100.0) // very high threshold
 	if err != nil {
@@ -125,10 +125,10 @@ func TestAPIUmbrellaHandler(t *testing.T) {
 	}
 	defer func() { fetchFromHTTP = oldFetch }()
 
-	// Mock time.Now() to return our fixed time
-	originalTimeNow := time.Now
-	time.Now = func() time.Time { return now }
-	defer func() { time.Now = originalTimeNow }()
+	// Mock timeNow to return our fixed time
+	originalTimeNow := timeNow
+	timeNow = func() time.Time { return now }
+	defer func() { timeNow = originalTimeNow }()
 
 	req := httptest.NewRequest("GET", "/api/umbrella", nil)
 	rw := httptest.NewRecorder()
@@ -174,10 +174,10 @@ func TestAPIUmbrellaHandler_ThresholdParam(t *testing.T) {
 	}
 	defer func() { fetchFromHTTP = oldFetch }()
 
-	// Mock time.Now() to return our fixed time
-	originalTimeNow := time.Now
-	time.Now = func() time.Time { return now }
-	defer func() { time.Now = originalTimeNow }()
+	// Mock timeNow to return our fixed time
+	originalTimeNow := timeNow
+	timeNow = func() time.Time { return now }
+	defer func() { timeNow = originalTimeNow }()
 
 	// Use a high threshold to ensure NeedUmbrella is false
 	req := httptest.NewRequest("GET", "/api/umbrella?threshold=100.0", nil)
@@ -232,10 +232,10 @@ func TestCheckUmbrella_OnlyTomorrowPeriod(t *testing.T) {
 	}
 	defer func() { fetchFromHTTP = oldFetch }()
 
-	// Mock time.Now() to return our fixed time
-	originalTimeNow := time.Now
-	time.Now = func() time.Time { return now }
-	defer func() { time.Now = originalTimeNow }()
+	// Mock timeNow to return our fixed time
+	originalTimeNow := timeNow
+	timeNow = func() time.Time { return now }
+	defer func() { timeNow = originalTimeNow }()
 
 	resp, err := checkUmbrella()
 	if err != nil {
