@@ -91,3 +91,31 @@ func TestAPIUmbrellaHandler(t *testing.T) {
 		t.Errorf("expected second period values not found: %s", body)
 	}
 }
+
+func TestAPIUmbrellaHandler_ThresholdParam(t *testing.T) {
+	oldFetch := fetchFromHTTP
+	fetchFromHTTP = mockFetchFromHTTP
+	defer func() { fetchFromHTTP = oldFetch }()
+
+	// Use a high threshold to ensure NeedUmbrella is false
+	req := httptest.NewRequest("GET", "/api/umbrella?threshold=100.0", nil)
+	rw := httptest.NewRecorder()
+	handleAPI(rw, req)
+	res := rw.Result()
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("expected 200 OK, got %d", res.StatusCode)
+	}
+	body := rw.Body.String()
+	if !strings.Contains(body, "need_umbrella") {
+		t.Errorf("response missing need_umbrella: %s", body)
+	}
+	if strings.Contains(body, "\"need_umbrella\":true") {
+		t.Errorf("expected need_umbrella false with high threshold, got true: %s", body)
+	}
+	if !strings.Contains(body, "sum_product") {
+		t.Errorf("response missing sum_product: %s", body)
+	}
+	if !strings.Contains(body, "periods") {
+		t.Errorf("response missing periods array: %s", body)
+	}
+}
