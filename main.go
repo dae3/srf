@@ -33,16 +33,8 @@ func main() {
 	}
 }
 
-// checkUmbrella computes the sum-product of (rain likelihood x rain amount) across all forecast periods for NSW_PT131.
-// If the sum-product exceeds the threshold, an umbrella is needed.
 func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 	log.Info().Msg("Fetching weather data from BOM")
-
-	// Default threshold
-	sumProductThreshold := 20.0
-	if len(threshold) > 0 {
-		sumProductThreshold = threshold[0]
-	}
 
 	// Fetch XML from HTTP
 	xmlData, err := fetchFromHTTP("http://www.bom.gov.au/fwo/IDN11060.xml")
