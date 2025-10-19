@@ -1,12 +1,8 @@
 package main
 
 import (
-	"encoding/xml"
-	"fmt"
 	"net/http"
 	"os"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog"
