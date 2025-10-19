@@ -258,12 +258,13 @@ func TestCheckUmbrella_OnlyTomorrowPeriod(t *testing.T) {
 		}
 	}
 	
-	// Sum product should be 30% * 2mm / 100 = 0.6, which is < 20.0 threshold
-	expectedSumProduct := 0.6
+	// SumProduct now just contains the precipitation chance for backward compatibility
+	expectedSumProduct := 30.0
 	if resp.SumProduct != expectedSumProduct {
 		t.Errorf("expected SumProduct to be %f, got %f", expectedSumProduct, resp.SumProduct)
 	}
+	// With default threshold of 50%, 30% chance should not need umbrella
 	if resp.NeedUmbrella {
-		t.Errorf("expected NeedUmbrella to be false (sum product %f < 20.0), got true", resp.SumProduct)
+		t.Errorf("expected NeedUmbrella to be false (30%% < 50%% threshold), got true")
 	}
 }
