@@ -67,7 +67,7 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 	for _, area := range forecast.Areas {
 		if area.AAC == "NSW_PT131" {
 			foundArea = true
-			
+
 			// Find the forecast period for tomorrow
 			var tomorrowPeriod *ForecastPeriod
 			log.Debug().Str("tomorrow_date", tomorrowDateStr).Msg("Looking for tomorrow's forecast period")
@@ -78,10 +78,10 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 					log.Debug().Str("start_time", period.StartTime).Err(err).Msg("Failed to parse start time")
 					continue // skip if we can't parse the time
 				}
-				
+
 				periodDateStr := startTime.Format("2006-01-02")
 				log.Debug().Str("period_date", periodDateStr).Str("start_time", period.StartTime).Msg("Checking period")
-				
+
 				// Check if this period is for tomorrow
 				if periodDateStr == tomorrowDateStr {
 					log.Debug().Str("start_time", period.StartTime).Msg("Found tomorrow's period")
@@ -89,11 +89,11 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 					break
 				}
 			}
-			
+
 			if tomorrowPeriod != nil {
 				var chance int
 				var volume float64
-				
+
 				// Extract precipitation chance
 				for _, text := range tomorrowPeriod.Texts {
 					if text.Type == "probability_of_precipitation" {
@@ -107,7 +107,7 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 						break
 					}
 				}
-				
+
 				// Extract precipitation volume (parse "X to Y mm" format)
 				for _, element := range tomorrowPeriod.Elements {
 					if element.Type == "precipitation_range" {
@@ -124,7 +124,7 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 						break
 					}
 				}
-				
+
 				sumProduct = float64(chance) * volume / 100.0 // scale chance to 0-1
 				periods = append(periods, RainPeriod{Likelihood: chance, Volume: volume, StartTime: tomorrowPeriod.StartTime})
 			}
