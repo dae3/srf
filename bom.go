@@ -69,9 +69,8 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 		return nil, fmt.Errorf("failed to parse XML: %w", err)
 	}
 
-	var sumProduct float64
-	var precipChanceMax int
-	var precipVolumeMax float64
+	var precipChance int
+	var precipVolume float64
 	var periods []RainPeriod
 	foundArea := false
 
@@ -103,19 +102,15 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 			}
 
 			if tomorrowPeriod != nil {
-				var chance int
-				var volume float64
-
 				// Extract precipitation chance
 				for _, text := range tomorrowPeriod.Texts {
 					if text.Type == "probability_of_precipitation" {
 						valueStr := strings.TrimSpace(text.Value)
 						valueStr = strings.TrimSuffix(valueStr, "%")
-						chance, err = strconv.Atoi(valueStr)
+						precipChance, err = strconv.Atoi(valueStr)
 						if err != nil {
-							chance = 0 // treat as 0 if parse fails
+							precipChance = 0 // treat as 0 if parse fails
 						}
-						precipChanceMax = chance
 						break
 					}
 				}
@@ -127,18 +122,16 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 						valueStr = strings.TrimSuffix(valueStr, " mm")
 						parts := strings.Split(valueStr, " to ")
 						if len(parts) == 2 {
-							volume, err = strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
+							precipVolume, err = strconv.ParseFloat(strings.TrimSpace(parts[1]), 64)
 							if err != nil {
-								volume = 0.0 // treat as 0 if parse fails
+								precipVolume = 0.0 // treat as 0 if parse fails
 							}
-							precipVolumeMax = volume
 						}
 						break
 					}
 				}
 
-				sumProduct = float64(chance) * volume / 100.0 // scale chance to 0-1
-				periods = append(periods, RainPeriod{Likelihood: chance, Volume: volume, StartTime: tomorrowPeriod.StartTime})
+				periods = append(periods, RainPeriod{Likelihood: precipChance, Volume: precipVolume, StartTime: tomorrowPeriod.StartTime})
 			}
 			break
 		}
@@ -148,19 +141,19 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 		return nil, fmt.Errorf("NSW_PT131 area not found")
 	}
 
-	// Default threshold
-	sumProductThreshold := 20.0
+	// Default threshold for precipitation chance
+	chanceThreshold := 50.0
 	if len(threshold) > 0 {
-		sumProductThreshold = threshold[0]
+		chanceThreshold = threshold[0]
 	}
 
-	needUmbrella := sumProduct > sumProductThreshold
+	needUmbrella := float64(precipChance) > chanceThreshold
 
 	return &UmbrellaResponse{
 		NeedUmbrella:           needUmbrella,
-		PrecipitationChance:    precipChanceMax,
-		PrecipitationVolumeMax: precipVolumeMax,
-		SumProduct:             sumProduct,
+		PrecipitationChance:    precipChance,
+		PrecipitationVolumeMax: precipVolume,
+		SumProduct:             float64(precipChance), // Keep for backward compatibility, but now just the chance
 		Periods:                periods,
 		Location:               "NSW_PT131",
 		Timestamp:              timeNow().Format(time.RFC3339),
