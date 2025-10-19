@@ -26,11 +26,11 @@ func TestCheckUmbrella_DefaultThreshold(t *testing.T) {
 <product>
 	<forecast>
 		<area aac="NSW_PT131">
-			<forecast-period start-time="2025-10-10T00:00:00Z">
+			<forecast-period start-time-local="2025-10-10T00:00:00Z">
 				<text type="probability_of_precipitation">30%</text>
 				<element type="precipitation_range">0 to 2 mm</element>
 			</forecast-period>
-			<forecast-period start-time="2025-10-11T00:00:00Z">
+			<forecast-period start-time-local="2025-10-11T00:00:00Z">
 				<text type="probability_of_precipitation">80%</text>
 				<element type="precipitation_range">2 to 8 mm</element>
 			</forecast-period>
@@ -80,7 +80,7 @@ func TestCheckUmbrella_CustomThreshold(t *testing.T) {
 <product>
 	<forecast>
 		<area aac="NSW_PT131">
-			<forecast-period start-time="2025-10-11T00:00:00Z">
+			<forecast-period start-time-local="2025-10-11T00:00:00Z">
 				<text type="probability_of_precipitation">80%</text>
 				<element type="precipitation_range">2 to 8 mm</element>
 			</forecast-period>
@@ -115,7 +115,7 @@ func TestAPIUmbrellaHandler(t *testing.T) {
 <product>
 	<forecast>
 		<area aac="NSW_PT131">
-			<forecast-period start-time="2025-10-11T00:00:00Z">
+			<forecast-period start-time-local="2025-10-11T00:00:00Z">
 				<text type="probability_of_precipitation">80%</text>
 				<element type="precipitation_range">2 to 8 mm</element>
 			</forecast-period>
@@ -164,7 +164,7 @@ func TestAPIUmbrellaHandler_ThresholdParam(t *testing.T) {
 <product>
 	<forecast>
 		<area aac="NSW_PT131">
-			<forecast-period start-time="2025-10-11T00:00:00Z">
+			<forecast-period start-time-local="2025-10-11T00:00:00Z">
 				<text type="probability_of_precipitation">80%</text>
 				<element type="precipitation_range">2 to 8 mm</element>
 			</forecast-period>
@@ -214,15 +214,15 @@ func TestCheckUmbrella_OnlyTomorrowPeriod(t *testing.T) {
 <product>
 	<forecast>
 		<area aac="NSW_PT131">
-			<forecast-period start-time="2025-10-10T00:00:00Z">
+			<forecast-period start-time-local="2025-10-10T00:00:00Z">
 				<text type="probability_of_precipitation">90%</text>
 				<element type="precipitation_range">10 to 20 mm</element>
 			</forecast-period>
-			<forecast-period start-time="2025-10-11T00:00:00Z">
+			<forecast-period start-time-local="2025-10-11T00:00:00Z">
 				<text type="probability_of_precipitation">30%</text>
 				<element type="precipitation_range">0 to 2 mm</element>
 			</forecast-period>
-			<forecast-period start-time="2025-10-12T00:00:00Z">
+			<forecast-period start-time-local="2025-10-12T00:00:00Z">
 				<text type="probability_of_precipitation">70%</text>
 				<element type="precipitation_range">5 to 15 mm</element>
 			</forecast-period>
