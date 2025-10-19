@@ -134,9 +134,6 @@ func TestAPIUmbrellaHandler(t *testing.T) {
 	if !strings.Contains(body, "need_umbrella") {
 		t.Errorf("response missing need_umbrella: %s", body)
 	}
-	if !strings.Contains(body, "sum_product") {
-		t.Errorf("response missing sum_product: %s", body)
-	}
 }
 
 func TestAPIUmbrellaHandler_ThresholdParam(t *testing.T) {
@@ -179,9 +176,6 @@ func TestAPIUmbrellaHandler_ThresholdParam(t *testing.T) {
 	}
 	if strings.Contains(body, "\"need_umbrella\":true") {
 		t.Errorf("expected need_umbrella false with high threshold, got true: %s", body)
-	}
-	if !strings.Contains(body, "sum_product") {
-		t.Errorf("response missing sum_product: %s", body)
 	}
 }
 
@@ -233,11 +227,6 @@ func TestCheckUmbrella_OnlyTomorrowPeriod(t *testing.T) {
 		t.Errorf("expected PrecipitationVolumeMax to be 2.0 (tomorrow's), got %f", resp.PrecipitationVolumeMax)
 	}
 	
-	// SumProduct now just contains the precipitation chance for backward compatibility
-	expectedSumProduct := 30.0
-	if resp.SumProduct != expectedSumProduct {
-		t.Errorf("expected SumProduct to be %f, got %f", expectedSumProduct, resp.SumProduct)
-	}
 	// With default threshold of 50%, 30% chance should not need umbrella
 	if resp.NeedUmbrella {
 		t.Errorf("expected NeedUmbrella to be false (30%% < 50%% threshold), got true")

@@ -41,7 +41,6 @@ type UmbrellaResponse struct {
 	NeedUmbrella           bool    `json:"need_umbrella"`
 	PrecipitationChance    int     `json:"precipitation_chance_percent"`
 	PrecipitationVolumeMax float64 `json:"precipitation_volume_mm"`
-	SumProduct             float64 `json:"sum_product"`
 	Location               string  `json:"location"`
 	Timestamp              string  `json:"timestamp"`
 }
@@ -144,7 +143,6 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 		NeedUmbrella:           needUmbrella,
 		PrecipitationChance:    precipChance,
 		PrecipitationVolumeMax: precipVolume,
-		SumProduct:             float64(precipChance), // Keep for backward compatibility, but now just the chance
 		Location:               "NSW_PT131",
 		Timestamp:              timeNow().Format(time.RFC3339),
 	}, nil
