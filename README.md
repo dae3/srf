@@ -1,14 +1,6 @@
 # Umbrella API
 
-A modern Go API that tells you if you need an umbrella today based on weather data from the Australian Bureau of Meteorology.
-
-## Features
-
-- Fetches real-time precipitation data from BOM FTP server
-- REST API endpoint returning JSON
-- Clean HTML web interface
-- Structured logging with zerolog
-- Uses Go standard library for HTTP and FTP
+An API and UI API that tells you if you need an umbrella in Sydney tomorrow, using weather data from the Australian Bureau of Meteorology.
 
 ## Installation
 
