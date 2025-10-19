@@ -37,20 +37,13 @@ type ForecastElement struct {
 	Value string `xml:",chardata"`
 }
 
-type RainPeriod struct {
-	Likelihood int     `json:"likelihood"`
-	Volume     float64 `json:"volume"`
-	StartTime  string  `json:"start_time"`
-}
-
 type UmbrellaResponse struct {
-	NeedUmbrella           bool         `json:"need_umbrella"`
-	PrecipitationChance    int          `json:"precipitation_chance_percent"`
-	PrecipitationVolumeMax float64      `json:"precipitation_volume_mm"`
-	SumProduct             float64      `json:"sum_product"`
-	Periods                []RainPeriod `json:"periods"`
-	Location               string       `json:"location"`
-	Timestamp              string       `json:"timestamp"`
+	NeedUmbrella           bool    `json:"need_umbrella"`
+	PrecipitationChance    int     `json:"precipitation_chance_percent"`
+	PrecipitationVolumeMax float64 `json:"precipitation_volume_mm"`
+	SumProduct             float64 `json:"sum_product"`
+	Location               string  `json:"location"`
+	Timestamp              string  `json:"timestamp"`
 }
 
 // timeNow is a variable that can be mocked in tests
@@ -71,7 +64,6 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 
 	var precipChance int
 	var precipVolume float64
-	var periods []RainPeriod
 	foundArea := false
 
 	// Find tomorrow's date
@@ -131,7 +123,6 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 					}
 				}
 
-				periods = append(periods, RainPeriod{Likelihood: precipChance, Volume: precipVolume, StartTime: tomorrowPeriod.StartTime})
 			}
 			break
 		}
@@ -154,7 +145,6 @@ func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {
 		PrecipitationChance:    precipChance,
 		PrecipitationVolumeMax: precipVolume,
 		SumProduct:             float64(precipChance), // Keep for backward compatibility, but now just the chance
-		Periods:                periods,
 		Location:               "NSW_PT131",
 		Timestamp:              timeNow().Format(time.RFC3339),
 	}, nil

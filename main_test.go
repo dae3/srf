@@ -59,14 +59,6 @@ func TestCheckUmbrella_DefaultThreshold(t *testing.T) {
 	if resp.PrecipitationVolumeMax != 8.0 {
 		t.Errorf("expected PrecipitationVolumeMax to be 8.0, got %f", resp.PrecipitationVolumeMax)
 	}
-	if len(resp.Periods) != 1 {
-		t.Errorf("expected 1 period (tomorrow only), got %d", len(resp.Periods))
-	} else {
-		// Verify it's tomorrow's period
-		if resp.Periods[0].StartTime != "2025-10-11T00:00:00Z" {
-			t.Errorf("expected tomorrow's start time, got %s", resp.Periods[0].StartTime)
-		}
-	}
 }
 
 func TestCheckUmbrella_CustomThreshold(t *testing.T) {
@@ -145,13 +137,6 @@ func TestAPIUmbrellaHandler(t *testing.T) {
 	if !strings.Contains(body, "sum_product") {
 		t.Errorf("response missing sum_product: %s", body)
 	}
-	if !strings.Contains(body, "periods") {
-		t.Errorf("response missing periods array: %s", body)
-	}
-	// Check for expected period values (only tomorrow's period now)
-	if !strings.Contains(body, "\"likelihood\":80") || !strings.Contains(body, "\"volume\":8") {
-		t.Errorf("expected tomorrow's period values not found: %s", body)
-	}
 }
 
 func TestAPIUmbrellaHandler_ThresholdParam(t *testing.T) {
@@ -197,9 +182,6 @@ func TestAPIUmbrellaHandler_ThresholdParam(t *testing.T) {
 	}
 	if !strings.Contains(body, "sum_product") {
 		t.Errorf("response missing sum_product: %s", body)
-	}
-	if !strings.Contains(body, "periods") {
-		t.Errorf("response missing periods array: %s", body)
 	}
 }
 
@@ -249,13 +231,6 @@ func TestCheckUmbrella_OnlyTomorrowPeriod(t *testing.T) {
 	}
 	if resp.PrecipitationVolumeMax != 2.0 {
 		t.Errorf("expected PrecipitationVolumeMax to be 2.0 (tomorrow's), got %f", resp.PrecipitationVolumeMax)
-	}
-	if len(resp.Periods) != 1 {
-		t.Errorf("expected exactly 1 period (tomorrow only), got %d", len(resp.Periods))
-	} else {
-		if resp.Periods[0].StartTime != "2025-10-11T00:00:00Z" {
-			t.Errorf("expected tomorrow's start time, got %s", resp.Periods[0].StartTime)
-		}
 	}
 	
 	// SumProduct now just contains the precipitation chance for backward compatibility
