@@ -9,8 +9,9 @@
     },
     "containerUser": "vscode",
     "remoteUser": "vscode",
+    "forwardPorts": [8080],
     "onCreateCommand": {
-        "homeperm": "chown vscode /home/vscode",
+        "homeperm": "chown vscode /home/vscode"
     }
 }
 
