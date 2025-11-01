@@ -21,7 +21,9 @@ func main() {
 	}
 
 	http.HandleFunc("/", handleRoot)
+	http.HandleFunc("/weather", handleWeather)
 	http.HandleFunc("/api/umbrella", handleAPI)
+	http.HandleFunc("/api/temp", handleTemp)
 
 	log.Info().Str("port", port).Msg("Starting umbrella API server")
 	if err := http.ListenAndServe(":"+port, nil); err != nil {

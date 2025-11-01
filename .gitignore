@@ -1,3 +1,4 @@
 .aider*
 # Added by goreleaser init:
 dist/
+umbrella-api

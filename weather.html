@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Info</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f0f0; }
+        .weather-container { background-color: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+        .weather-item { margin-bottom: 1rem; }
+        .weather-label { font-weight: bold; }
+        .weather-value { margin-left: 0.5rem; }
+        .weather-icon { width: 100px; height: 100px; margin-top: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="weather-container">
+        <h1>Current Weather Forecast</h1>
+        <div class="weather-item">
+            <span class="weather-label">Need Umbrella?</span>
+            <span class="weather-value" id="umbrella"></span>
+        </div>
+        <div class="weather-item">
+            <span class="weather-label">Precipitation Chance:</span>
+            <span class="weather-value" id="precip-chance"></span>
+        </div>
+        <div class="weather-item">
+            <span class="weather-label">Precipitation Volume:</span>
+            <span class="weather-value" id="precip-volume"></span>
+        </div>
+        <div class="weather-item">
+            <span class="weather-label">Min Temperature:</span>
+            <span class="weather-value" id="min-temp"></span>
+        </div>
+        <div class="weather-item">
+            <span class="weather-label">Max Temperature:</span>
+            <span class="weather-value" id="max-temp"></span>
+        </div>
+        <div class="weather-item">
+            <span class="weather-label">Wind Speed:</span>
+            <span class="weather-value" id="wind-speed"></span>
+        </div>
+        <img id="sun-icon" class="weather-icon" src="https://freesvg.org/img/SunSymbol.png" alt="Sun Icon">
+        <img id="rain-icon" class="weather-icon" src="https://freesvg.org/img/1515964179.png" alt="Rain Icon">
+        <img id="wind-icon" class="weather-icon" src="https://freesvg.org/img/wind.png" alt="Wind Icon">
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/api/umbrella')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('umbrella').textContent = data.need_umbrella ? 'Yes' : 'No';
+                    document.getElementById('precip-chance').textContent = `${data.precipitation_chance_percent}%`;
+                    document.getElementById('precip-volume').textContent = `${data.precipitation_volume_mm} mm`;
+                    document.getElementById('min-temp').textContent = `${data.min_temp}°C`;
+                    document.getElementById('max-temp').textContent = `${data.max_temp}°C`;
+                    document.getElementById('wind-speed').textContent = `${data.wind_speed_kmh} km/h`;
+
+                    if (data.need_umbrella) {
+                        document.getElementById('rain-icon').style.display = 'block';
+                    } else if (data.wind_speed_kmh > 20) {
+                        document.getElementById('wind-icon').style.display = 'block';
+                    } else {
+                        document.getElementById('sun-icon').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching weather data:', error);
+                    document.querySelector('.weather-container').innerHTML = '<h1>Error loading weather data</h1>';
+                });
+        });
+    </script>
+</body>
+</html>

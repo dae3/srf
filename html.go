@@ -99,3 +99,9 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("Failed to render template")
 	}
 }
+
+// handleWeather handles the /weather HTML page.
+func handleWeather(w http.ResponseWriter, r *http.Request) {
+	log.Info().Str("path", r.URL.Path).Str("method", r.Method).Msg("Request received")
+	http.ServeFile(w, r, "weather.html")
+}
