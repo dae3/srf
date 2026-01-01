@@ -1,0 +1,30 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+Area	bom.go	/^type Area struct {$/;"	t
+Forecast	bom.go	/^type Forecast struct {$/;"	t
+ForecastElement	bom.go	/^type ForecastElement struct {$/;"	t
+ForecastPeriod	bom.go	/^type ForecastPeriod struct {$/;"	t
+ForecastText	bom.go	/^type ForecastText struct {$/;"	t
+TestAPIUmbrellaHandler	main_test.go	/^func TestAPIUmbrellaHandler(t *testing.T) {$/;"	f
+TestAPIUmbrellaHandler_ThresholdParam	main_test.go	/^func TestAPIUmbrellaHandler_ThresholdParam(t *testing.T) {$/;"	f
+TestCheckUmbrella_CustomThreshold	main_test.go	/^func TestCheckUmbrella_CustomThreshold(t *testing.T) {$/;"	f
+TestCheckUmbrella_DefaultThreshold	main_test.go	/^func TestCheckUmbrella_DefaultThreshold(t *testing.T) {$/;"	f
+TestCheckUmbrella_OnlyTomorrowPeriod	main_test.go	/^func TestCheckUmbrella_OnlyTomorrowPeriod(t *testing.T) {$/;"	f
+UmbrellaResponse	bom.go	/^type UmbrellaResponse struct {$/;"	t
+checkUmbrella	bom.go	/^func checkUmbrella(threshold ...float64) (*UmbrellaResponse, error) {$/;"	f
+fetchFromHTTP	bom.go	/^var fetchFromHTTP = realFetchFromHTTP$/;"	v
+handleAPI	api.go	/^func handleAPI(w http.ResponseWriter, r *http.Request) {$/;"	f
+handleRoot	html.go	/^func handleRoot(w http.ResponseWriter, r *http.Request) {$/;"	f
+main	api.go	/^package main$/;"	p
+main	bom.go	/^package main$/;"	p
+main	html.go	/^package main$/;"	p
+main	main.go	/^func main() {$/;"	f
+main	main.go	/^package main$/;"	p
+main	main_test.go	/^package main$/;"	p
+mockFetchFromHTTP	main_test.go	/^func mockFetchFromHTTP(url string) ([]byte, error) {$/;"	f
+realFetchFromHTTP	bom.go	/^func realFetchFromHTTP(url string) ([]byte, error) {$/;"	f
+timeNow	bom.go	/^var timeNow = time.Now$/;"	v
