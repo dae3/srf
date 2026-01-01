@@ -1,0 +1,36 @@
+issuer: "http://localhost:8080/id"
+
+storage:
+  type: postgres
+  config:
+    host: db
+    port: 5432
+    database: dex
+    user: dex
+    ssl:
+      mode: disable
+
+web:
+  http:  "0.0.0.0:5556"
+
+enablePasswordDB: true
+staticPasswords:
+  - email: "deverett@gmail.com"
+    hash: "$2y$10$UbymTTTVrrLyvR6jbXBYIu2T/3vB5HZMdUNpSF16T3.NAW/dPkOim"
+    username: "dae"
+    userID: "5ee29113-0456-408c-8ab8-1f05972ef93c"
+
+oauth2:
+  skipApprovalScreen: true
+
+expiry:
+  idTokens: 1m
+  refreshTokens:
+    absoluteLifetime: 1m
+
+staticClients:
+  - id: qrs
+    name: qrs
+    secret:  "ZXhhbXBsZS1hcHAtc2VjcmV0"
+    redirectURIs:
+      -  "http://localhost:8080/app/auth/callback"

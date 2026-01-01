@@ -1,0 +1,17 @@
+:80 {
+  # root redirection
+  redir / /app/
+  redir /app /app/
+
+  # standard strip-path prefix
+  handle_path /app/* {
+    reverse_proxy devcontainer:8080
+  }
+
+  reverse_proxy /id/* idp:5556
+
+  log {
+    output stdout
+    format console
+  }
+}
