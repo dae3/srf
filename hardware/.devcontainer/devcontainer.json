@@ -1,0 +1,7 @@
+{
+    "name": "ESP8266 RTOS SDK (System Python)",
+    "build": { "dockerfile": "Dockerfile" },
+    "remoteUser": "vscode",
+    "runArgs": ["--device=/dev/ttyUSB0:/dev/ttyUSB0"],
+    "onCreateCommand": ".devcontainer/setup-sdk.sh"
+}
