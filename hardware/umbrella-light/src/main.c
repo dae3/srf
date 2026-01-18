@@ -81,10 +81,6 @@ static const char *wifi_status_name(int st) {
 
 static void wifi_monitor_task(void *pvParameters) {
 	(void)pvParameters;
-	for (;;) {
-		int status = wifi_station_get_connect_status();
-
-	/* Make an API call once when we obtain an IP address. */
 	static int api_called = 0;
 	for (;;) {
 		int status = wifi_station_get_connect_status();
@@ -96,8 +92,6 @@ static void wifi_monitor_task(void *pvParameters) {
 			api_client_get_https("https://sydney-umbrella.fly.dev/api");
 			api_called = 1;
 		}
-
-		(void)status; // keep variable usage obvious to avoid warnings if unused
 		vTaskDelay((2000 * configTICK_RATE_HZ) / 1000);
 	}
 }

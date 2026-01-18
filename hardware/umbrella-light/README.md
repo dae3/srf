@@ -1,37 +1,46 @@
-# Umbrella Light — ESP8266 RTOS SDK migration
+# Umbrella Light — ESP8266 RTOS SDK
 
-This small project was migrated from the esp8266 non-OS SDK to the esp8266-rtos-sdk.
-The example blinks the onboard LED on a NodeMCU (ESP-12E) and runs as a FreeRTOS task.
+This project is a small application for the ESP8266 that demonstrates a FreeRTOS task. The original example blinked the onboard LED; it is intended to be expanded to call the umbrella API and indicate if rain is expected.
 
-Build & flash (PlatformIO):
+## Building and Flashing
 
-```bash
-# build
-platformio run
+This project is built using the Espressif RTOS SDK toolchain.
 
-# flash (auto-detect serial port or set upload_port in platformio.ini)
-platformio run --target upload
-```
+### Prerequisites
 
-Notes about the migration
-- `platformio.ini` now sets `framework = esp8266-rtos-sdk`.
-- `src/main.c` was rewritten to use a FreeRTOS task (`app_main` / `blink_task`).
-- GPIO access uses conditional compilation: if the native driver header is
-  available it will use `gpio_set_level`/`gpio_config`, otherwise it falls
-  back to the legacy macros (`PIN_FUNC_SELECT` / `GPIO_OUTPUT_SET`) for
-  maximum compatibility across SDK versions.
-- `user_rf_cal_sector_set()` is implemented to choose the RF calibration
-  sector based on the flash size map. For production code review the
-  sector mapping for your device/partition layout.
+- ESP8266 RTOS SDK toolchain
+- A C compiler (`gcc`) and `make` for running host-based tests
 
-Next steps you might want:
-- Replace compatibility GPIO code with the native driver API if your
-  target SDK exposes it (this repo already attempts to use it via
-  conditional compilation).
-- Verify `user_rf_cal_sector_set()` logic against your flash layout and
-  adjust as needed (especially if using OTA or custom partitioning).
-- Add CI checks that run `platformio run` to ensure the project builds on
-  push.
+### Build and Flash Steps
 
-If you'd like, I can add a small CI workflow file (GitHub Actions) that
-runs PlatformIO build on pushes and PRs.
+1.  **Configure the project:**
+    ```bash
+    idf.py menuconfig
+    ```
+
+2.  **Build the project:**
+    ```bash
+    idf.py build
+    ```
+
+3.  **Flash the firmware:**
+    ```bash
+    idf.py -p /dev/ttyUSB0 flash
+    ```
+    (Replace `/dev/ttyUSB0` with the correct serial port for your device).
+
+## Host-Based Unit Testing
+
+This project includes a unit testing setup that runs on the host machine, without requiring any ESP8266 hardware.
+
+### Running the Tests
+
+1.  **Navigate to the test directory:**
+    ```bash
+    cd hardware/umbrella-light/test_host
+    ```
+
+2.  **Compile and run the tests:**
+    ```bash
+    make
+    ```
