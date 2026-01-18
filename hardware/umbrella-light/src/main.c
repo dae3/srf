@@ -25,6 +25,7 @@
  */
 
 #include "wifi_config.h"
+#include "api_client.h"
 
 
 #ifndef WIFI_SSID
@@ -47,11 +48,11 @@ static void blink_task(void *pvParameters) {
 	/* Enable GPIO2 as output and set it HIGH (LED off on many boards).
 	 * gpio_output_set(set_mask, clear_mask, enable_mask, disable_mask)
 	 */
-	
- 
+
+
 	for (;;) {
 		led_on = !led_on;
-	    gpio_output_set((1 << 2), 0, (1 << 2), 0);	
+	    gpio_output_set((1 << 2), 0, (1 << 2), 0);
 		vTaskDelay((1000 * configTICK_RATE_HZ) / 1000);
 	}
 
@@ -82,6 +83,20 @@ static void wifi_monitor_task(void *pvParameters) {
 	(void)pvParameters;
 	for (;;) {
 		int status = wifi_station_get_connect_status();
+
+	/* Make an API call once when we obtain an IP address. */
+	static int api_called = 0;
+	for (;;) {
+		int status = wifi_station_get_connect_status();
+		if (status == STATION_GOT_IP && !api_called) {
+			/* Call the HTTPS-capable API helper once. This uses the SDK's
+			 * esp_http_client which supports TLS. The helper will print
+			 * the response and attempt a minimal JSON extraction of fields.
+			 */
+			api_client_get_https("https://sydney-umbrella.fly.dev/api");
+			api_called = 1;
+		}
+
 		(void)status; // keep variable usage obvious to avoid warnings if unused
 		vTaskDelay((2000 * configTICK_RATE_HZ) / 1000);
 	}
@@ -131,29 +146,6 @@ unsigned int user_rf_cal_sector_set(void) {
 	// returns a small integer code. Use numeric cases to remain portable
 	// across SDK header layout differences.
 	int size_map = system_get_flash_size_map();
-	unsigned int rf_cal_sec = 0;
-
-	switch (size_map) {
-		case 0: // FLASH_SIZE_4M_MAP_256_256
-			rf_cal_sec = 128 - 5;
-			break;
-		case 1: // FLASH_SIZE_8M_MAP_512_512
-			rf_cal_sec = 256 - 5;
-			break;
-		case 2: // FLASH_SIZE_16M_MAP_1024_1024
-			rf_cal_sec = 512 - 5;
-			break;
-		case 3: // FLASH_SIZE_32M_MAP_512_512_1024_1024
-			rf_cal_sec = 1024 - 5;
-			break;
-		default:
-			// Unknown map; fall back to a safe default
-			rf_cal_sec = 0;
-			break;
-	}
-
-	return rf_cal_sec;
-}
 	unsigned int rf_cal_sec = 0;
 
 	switch (size_map) {
